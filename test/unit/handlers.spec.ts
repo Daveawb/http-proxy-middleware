@@ -5,7 +5,6 @@ describe('handlers factory', () => {
 
   it('should return default handlers when no handlers are provided', () => {
     handlersMap = getHandlers(undefined);
-    console.log(handlersMap);
     expect(typeof handlersMap.error).toBe('function');
     expect(typeof handlersMap.close).toBe('function');
   });

@@ -14,18 +14,22 @@ describe('helper functions', () => {
       array: ['value'],
     };
 
-    for (let key in truthyTests) {
-      test(`returns true as ${key}`, () => {
-        const sut = truthyTests[key];
-        expect(isObject(sut)).toBeTruthy();
-      });
+    for (const key in truthyTests) {
+      if (truthyTests.hasOwnProperty(key)) {
+        test(`returns true as ${key}`, () => {
+          const sut = truthyTests[key];
+          expect(isObject(sut)).toBeTruthy();
+        });
+      }
     }
 
-    for (let key in falsyTests) {
-      test(`returns false as ${key}`, () => {
-        const sut = falsyTests[key];
-        expect(isObject(sut)).toBeFalsy();
-      });
+    for (const key in falsyTests) {
+      if (falsyTests.hasOwnProperty(key)) {
+        test(`returns false as ${key}`, () => {
+          const sut = falsyTests[key];
+          expect(isObject(sut)).toBeFalsy();
+        });
+      }
     }
 
     test('returns true as a constructed object', () => {
@@ -51,18 +55,22 @@ describe('helper functions', () => {
       object: { a: 'b' },
     };
 
-    for (let key in truthyTests) {
-      test(`returns true as ${key}`, () => {
-        const sut = truthyTests[key];
-        expect(isPlainObject(sut)).toBeTruthy();
-      });
+    for (const key in truthyTests) {
+      if (truthyTests.hasOwnProperty(key)) {
+        test(`returns true as ${key}`, () => {
+          const sut = truthyTests[key];
+          expect(isPlainObject(sut)).toBeTruthy();
+        });
+      }
     }
 
-    for (let key in falsyTests) {
-      test(`returns false as ${key}`, () => {
-        const sut = falsyTests[key];
-        expect(isPlainObject(sut)).toBeFalsy();
-      });
+    for (const key in falsyTests) {
+      if (falsyTests.hasOwnProperty(key)) {
+        test(`returns false as ${key}`, () => {
+          const sut = falsyTests[key];
+          expect(isPlainObject(sut)).toBeFalsy();
+        });
+      }
     }
 
     test('returns false as a constructed object', () => {
@@ -114,7 +122,9 @@ describe('helper functions', () => {
       };
 
       for (let key in tests) {
-        expect(toTitle(key)).toBe(tests[key]);
+        if (tests.hasOwnProperty(key)) {
+          expect(toTitle(key)).toBe(tests[key]);
+        }
       }
     });
   });
