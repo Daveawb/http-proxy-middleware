@@ -1,6 +1,6 @@
-import * as _ from 'lodash';
 import { ERRORS } from './errors';
 import { getInstance } from './logger';
+import { isEmpty, isFunction, isPlainObject } from './helpers';
 const logger = getInstance();
 
 /**
@@ -16,9 +16,8 @@ export function createPathRewriter(rewriteConfig) {
     return;
   }
 
-  if (_.isFunction(rewriteConfig)) {
-    const customRewriteFn = rewriteConfig;
-    return customRewriteFn;
+  if (isFunction(rewriteConfig)) {
+    return rewriteConfig;
   } else {
     rulesCache = parsePathRewriteRules(rewriteConfig);
     return rewritePath;
@@ -27,11 +26,11 @@ export function createPathRewriter(rewriteConfig) {
   function rewritePath(path) {
     let result = path;
 
-    _.forEach(rulesCache, (rule) => {
+    rulesCache.some((rule) => {
       if (rule.regex.test(path)) {
         result = result.replace(rule.regex, rule.value);
         logger.debug('[HPM] Rewriting path from "%s" to "%s"', path, result);
-        return false;
+        return true;
       }
     });
 
@@ -40,14 +39,14 @@ export function createPathRewriter(rewriteConfig) {
 }
 
 function isValidRewriteConfig(rewriteConfig) {
-  if (_.isFunction(rewriteConfig)) {
+  if (isFunction(rewriteConfig)) {
     return true;
-  } else if (!_.isEmpty(rewriteConfig) && _.isPlainObject(rewriteConfig)) {
+  } else if (!isEmpty(rewriteConfig) && isPlainObject(rewriteConfig)) {
     return true;
   } else if (
-    _.isUndefined(rewriteConfig) ||
-    _.isNull(rewriteConfig) ||
-    _.isEqual(rewriteConfig, {})
+    typeof rewriteConfig === 'undefined' ||
+    rewriteConfig === null ||
+    (isEmpty(rewriteConfig) && isPlainObject(rewriteConfig))
   ) {
     return false;
   } else {
@@ -58,14 +57,18 @@ function isValidRewriteConfig(rewriteConfig) {
 function parsePathRewriteRules(rewriteConfig) {
   const rules = [];
 
-  if (_.isPlainObject(rewriteConfig)) {
-    _.forIn(rewriteConfig, (value, key) => {
+  if (isPlainObject(rewriteConfig)) {
+    for (const key in rewriteConfig) {
+      // Inspection not necessary as we know it's a plain object and not constructed
+      // therefore hasOwnProperty check would be redundant.
+      // noinspection JSUnfilteredForInLoop
       rules.push({
         regex: new RegExp(key),
         value: rewriteConfig[key],
       });
+      // noinspection JSUnfilteredForInLoop
       logger.info('[HPM] Proxy rewrite rule created: "%s" ~> "%s"', key, rewriteConfig[key]);
-    });
+    }
   }
 
   return rules;

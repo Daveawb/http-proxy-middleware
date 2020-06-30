@@ -1,5 +1,6 @@
-import * as _ from 'lodash';
 import { getInstance } from './logger';
+import { toTitle } from './helpers';
+import { EventHandler, Options } from './types';
 const logger = getInstance();
 
 export function init(proxy, option) {
@@ -12,30 +13,31 @@ export function init(proxy, option) {
   logger.debug('[HPM] Subscribed to http-proxy events:', Object.keys(handlers));
 }
 
-export function getHandlers(options) {
+export function getHandlers(options: Options = {}) {
   // https://github.com/nodejitsu/node-http-proxy#listening-for-proxy-events
   const proxyEvents = ['error', 'proxyReq', 'proxyReqWs', 'proxyRes', 'open', 'close'];
-  const handlers: any = {};
+  const handlers: Record<string, EventHandler> = {};
+  // all handlers for the http-proxy events are prefixed with 'on'.
+  // loop through options and try to find these handlers
+  // and add them to the handlers object for subscription in init().
+  proxyEvents.reduce((handlersRef, event) => {
+    const eventName = `on${toTitle(event)}`;
+    const fnHandler = options.hasOwnProperty(eventName) && options[eventName];
 
-  for (const event of proxyEvents) {
-    // all handlers for the http-proxy events are prefixed with 'on'.
-    // loop through options and try to find these handlers
-    // and add them to the handlers object for subscription in init().
-    const eventName = _.camelCase('on ' + event);
-    const fnHandler = _.get(options, eventName);
-
-    if (_.isFunction(fnHandler)) {
-      handlers[event] = fnHandler;
+    if (typeof fnHandler === 'function') {
+      handlersRef[event] = fnHandler;
     }
-  }
+
+    return handlersRef;
+  }, handlers);
 
   // add default error handler in absence of error handler
-  if (!_.isFunction(handlers.error)) {
+  if (typeof handlers.error !== 'function') {
     handlers.error = defaultErrorHandler;
   }
 
   // add default close handler in absence of close handler
-  if (!_.isFunction(handlers.close)) {
+  if (typeof handlers.close !== 'function') {
     handlers.close = logClose;
   }
 

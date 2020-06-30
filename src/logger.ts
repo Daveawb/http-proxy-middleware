@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
 import * as util from 'util';
+import { isFunction } from './helpers';
 
 let loggerInstance;
 
@@ -40,30 +40,30 @@ class Logger {
 
   // log will log messages, regardless of logLevels
   public log() {
-    this.provider.log(this._interpolate.apply(null, arguments));
+    this.provider.log(this.interpolate.apply(null, arguments));
   }
 
   public debug() {
-    if (this._showLevel('debug')) {
-      this.provider.debug(this._interpolate.apply(null, arguments));
+    if (this.showLevel('debug')) {
+      this.provider.debug(this.interpolate.apply(null, arguments));
     }
   }
 
   public info() {
-    if (this._showLevel('info')) {
-      this.provider.info(this._interpolate.apply(null, arguments));
+    if (this.showLevel('info')) {
+      this.provider.info(this.interpolate.apply(null, arguments));
     }
   }
 
   public warn() {
-    if (this._showLevel('warn')) {
-      this.provider.warn(this._interpolate.apply(null, arguments));
+    if (this.showLevel('warn')) {
+      this.provider.warn(this.interpolate.apply(null, arguments));
     }
   }
 
   public error() {
-    if (this._showLevel('error')) {
-      this.provider.error(this._interpolate.apply(null, arguments));
+    if (this.showLevel('error')) {
+      this.provider.error(this.interpolate.apply(null, arguments));
     }
   }
 
@@ -82,7 +82,7 @@ class Logger {
   public isValidProvider(fnProvider) {
     const result = true;
 
-    if (fnProvider && !_.isFunction(fnProvider)) {
+    if (fnProvider && !isFunction(fnProvider)) {
       throw new Error('[HPM] Log provider config error. Expecting a function.');
     }
 
@@ -105,7 +105,7 @@ class Logger {
    * @param  {String}  showLevel [debug, info, warn, error, silent]
    * @return {Boolean}
    */
-  private _showLevel(showLevel) {
+  private showLevel(showLevel) {
     let result = false;
     const currentLogLevel = LEVELS[this.logLevel];
 
@@ -118,11 +118,9 @@ class Logger {
 
   // make sure logged messages and its data are return interpolated
   // make it possible for additional log data, such date/time or custom prefix.
-  private _interpolate() {
-    const fn = _.spread(util.format);
-    const result = fn(_.slice(arguments));
-
-    return result;
+  private interpolate() {
+    const fn = (...args) => util.format(args);
+    return fn(...arguments);
   }
 }
 

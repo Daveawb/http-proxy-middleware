@@ -1,6 +1,5 @@
 import * as express from 'express';
 import * as httpProxy from 'http-proxy';
-import * as _ from 'lodash';
 import { createConfig } from './config-factory';
 import * as contextMatcher from './context-matcher';
 import * as handlers from './handlers';
@@ -13,9 +12,9 @@ export class HttpProxyMiddleware {
   private logger = getInstance();
   private config;
   private wsInternalSubscribed = false;
-  private proxyOptions: Options;
-  private proxy: httpProxy;
-  private pathRewriter;
+  private readonly proxyOptions: Options;
+  private readonly proxy: httpProxy;
+  private readonly pathRewriter;
 
   constructor(context: Filter | Options, opts?: Options) {
     this.config = createConfig(context, opts);
@@ -110,7 +109,7 @@ export class HttpProxyMiddleware {
 
     // store uri before it gets rewritten for logging
     const originalPath = req.url;
-    const newProxyOptions = _.assign({}, this.proxyOptions);
+    const newProxyOptions = Object.assign({}, this.proxyOptions);
 
     // Apply in order:
     // 1. option.router
