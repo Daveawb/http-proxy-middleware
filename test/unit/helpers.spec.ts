@@ -121,7 +121,7 @@ describe('helper functions', () => {
         single: 'Single',
       };
 
-      for (let key in tests) {
+      for (const key in tests) {
         if (tests.hasOwnProperty(key)) {
           expect(toTitle(key)).toBe(tests[key]);
         }
